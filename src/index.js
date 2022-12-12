@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
+import { Peer } from "peerjs";
 
 function Square(props) {
   return (
@@ -69,16 +70,42 @@ class Board extends React.Component {
   }
 }
 
-class Game extends React.Component {
+class UI extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      peer: null,
+      myID: null,
+      friendID: null,
+    };
+  }
+
+  getID() {
+    const p = new Peer();
+    p.on('open', (id) => {
+      console.log('My peer ID is: ' + id);
+      this.setState({
+        myID: id,
+      });
+    });
+    this.setState({
+      peer: p,
+    });
+    console.log(p)
+  }
+
   render() {
     return (
-      <div className="game">
-        <div className="game-board">
-          <Board />
-        </div>
-        <div className="game-info">
-          <div>{/* status */}</div>
-          <ol>{/* TODO */}</ol>
+      <div>
+        <div>
+          <button onClick={() => this.getID()}>
+            "Get new ID"
+          </button>
+          <div>
+            <span>
+              {this.state.myID}
+            </span>
+          </div>
         </div>
       </div>
     );
@@ -88,7 +115,7 @@ class Game extends React.Component {
 // ========================================
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<Game />);
+root.render(<UI />);
 
 function calculateWinner(squares) {
   const lines = [

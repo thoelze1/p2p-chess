@@ -13,4 +13,8 @@
 - Dark/light mode
 
 * Stuff I've learned
-Accessing the correct `this`: https://stackoverflow.com/questions/20279484/how-to-access-the-correct-this-inside-a-callback
+- Accessing the correct `this`: https://stackoverflow.com/questions/20279484/how-to-access-the-correct-this-inside-a-callback
+- You can't use peerjs in nodejs
+- You can't interact with local HTML/JS/CSS files the same way that
+  you can when you're requesting the files from a server
+

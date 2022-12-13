@@ -73,39 +73,60 @@ class Board extends React.Component {
 class UI extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      peer: null,
-      myID: null,
-      friendID: null,
-    };
-  }
-
-  getID() {
     const p = new Peer();
     p.on('open', (id) => {
-      console.log('My peer ID is: ' + id);
       this.setState({
         myID: id,
       });
     });
-    this.setState({
-      peer: p,
+    p.on('connection', (conn) => {
+      console.log("received connection")
+      conn.on('data', (data) => {
+        console.log(data);
+      });
     });
-    console.log(p)
+    this.state = {
+      peer: p,
+      myID: null,
+      friendID: "",
+    };
+    // see https://reactjs.org/docs/forms.html
+    this.handleChange = this.handleChange.bind(this);
+    this.connectToID = this.connectToID.bind(this);
+  }
+
+  connectToID(event) {
+    // prevents page refresh
+    event.preventDefault()
+    const conn = this.state.peer.connect(this.state.friendID);
+    conn.on("error", (err) => {
+      console.log(err)
+    });
+    conn.on("open", () => {
+      conn.send("hi!");
+      console.log("sent connection successful")
+    });
+  }
+
+  handleChange(event) {
+    this.setState({friendID: event.target.value});
+    console.log(this.state.friendID);
   }
 
   render() {
     return (
       <div>
         <div>
-          <button onClick={() => this.getID()}>
-            "Get new ID"
-          </button>
-          <div>
-            <span>
-              {this.state.myID}
-            </span>
-          </div>
+          <span>
+            Your peer ID: {this.state.myID ? this.state.myID : "waiting"}
+          </span>
+          <form onSubmit={this.connectToID}>
+            <label>
+              Connect to ID:
+              <textarea value={this.state.friendID} onChange={this.handleChange}/>
+            </label>
+            <input type="submit" value="Submit" />
+          </form>
         </div>
       </div>
     );

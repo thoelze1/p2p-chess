@@ -1,0 +1,16 @@
+* Goals
+- Other frontends other than the JS ons
+- Accessible (moves can be made in algebraic notation)
+
+* Next Steps
+- Design plan for error handling. If peers get disconnected, how is
+  board state recovered?
+- Does the site enforce rules? Can you put your own kind in check,
+  e.g.?
+- Does the chess board act more like a real chess board, or more like
+  a computerized board? Can you pick pieces up off of the board and
+  move them to the side, e.g.?
+- Dark/light mode
+
+* Stuff I've learned
+Accessing the correct `this`: https://stackoverflow.com/questions/20279484/how-to-access-the-correct-this-inside-a-callback

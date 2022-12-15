@@ -14,37 +14,21 @@ function Square(props) {
 class Board extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      squares: Array(9).fill(null),
-      xIsNext: true,
-    };
-  }
-
-  handleClick(i) {
-    const squares = this.state.squares.slice();
-    if (calculateWinner(squares) || squares[i]) {
-      return;
-    }
-    squares[i] = this.state.xIsNext ? 'X' : 'O';
-    this.setState({
-      squares: squares,
-      xIsNext: !this.state.xIsNext
-    });
   }
 
   renderSquare(i) {
-    return <Square value={this.state.squares[i]}
-                   onClick={() => this.handleClick(i)}
+    return <Square value={this.props.squares[i]}
+                   onClick={() => this.props.handleClick(i)}
            />;
   }
 
   render() {
-    const winner = calculateWinner(this.state.squares);
+    const winner = calculateWinner(this.props.squares);
     let status;
     if (winner) {
       status = 'Winner: ' + winner;
     } else {
-      status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+      status = 'Next player: ' + (this.props.xIsNext ? 'X' : 'O');
     }
         
     return (
@@ -79,33 +63,85 @@ class UI extends React.Component {
         myID: id,
       });
     });
-    p.on('connection', (conn) => {
+    p.on('connection', (c) => {
+      this.setState({
+        isX: true,
+      })
       console.log("received connection")
-      conn.on('data', (data) => {
-        console.log(data);
+      c.on('data', (data) => {
+        this.handleData(data)
       });
+      this.setState({
+        conn: c,
+      })
     });
     this.state = {
       peer: p,
       myID: null,
       friendID: "",
+      isX: null,
+      conn: null,
+      squares: Array(9).fill(null),
+      xIsNext: true,
     };
     // see https://reactjs.org/docs/forms.html
     this.handleChange = this.handleChange.bind(this);
     this.connectToID = this.connectToID.bind(this);
+    this.handleClick = this.handleClick.bind(this);
   }
 
+  handleClick(i) {
+    if(this.state.isX != this.state.xIsNext) {
+      return
+    }
+    const squares = this.state.squares.slice();
+    if (calculateWinner(squares) || squares[i]) {
+      return;
+    }
+    squares[i] = this.state.xIsNext ? 'X' : 'O';
+    this.state.conn.send(i)
+    this.setState({
+      squares: squares,
+      xIsNext: !this.state.xIsNext
+    });
+  }
+
+  handleData(i) {
+    console.log("received: ",i)
+    if(this.state.isX == this.state.xIsNext) {
+      // this would be a bad state...
+      console.log(this.state.isX,this.state.xIsNext)
+      return
+    }
+    const squares = this.state.squares.slice();
+    if (calculateWinner(squares) || squares[i]) {
+      return;
+    }
+    squares[i] = this.state.xIsNext ? 'X' : 'O';
+    this.setState({
+      squares: squares,
+      xIsNext: !this.state.xIsNext
+    });    
+  }
+  
   connectToID(event) {
     // prevents page refresh
     event.preventDefault()
-    const conn = this.state.peer.connect(this.state.friendID);
-    conn.on("error", (err) => {
+    const c = this.state.peer.connect(this.state.friendID);
+    c.on("error", (err) => {
       console.log(err)
     });
-    conn.on("open", () => {
-      conn.send("hi!");
+    c.on("open", () => {
+      //c.send("hi!");
       console.log("sent connection successful")
     });
+    c.on('data', (data) => {
+      this.handleData(data)
+    });
+    this.setState({
+      isX: false,
+      conn: c,
+    })
   }
 
   handleChange(event) {
@@ -127,6 +163,9 @@ class UI extends React.Component {
             </label>
             <input type="submit" value="Submit" />
           </form>
+          <Board squares={this.state.squares}
+                 handleClick={this.handleClick}
+                 xIsNext={this.state.xIsNext} />
         </div>
       </div>
     );

@@ -5,7 +5,7 @@ import { Peer } from "peerjs";
 
 function Square(props) {
   return (
-    <button className="square" onClick={props.onClick}>
+    <button className="square" onClick={props.onClick} disabled={!props.myTurn}>
       {props.value}
     </button>
   );
@@ -19,6 +19,7 @@ class Board extends React.Component {
   renderSquare(i) {
     return <Square value={this.props.squares[i]}
                    onClick={() => this.props.handleClick(i)}
+                   myTurn={this.props.myTurn}
            />;
   }
 
@@ -184,6 +185,7 @@ class UI extends React.Component {
     } else {
       status = this.myTurn() ? "Your move" : "Waiting for opponent";
     }
+    const myTurn = this.myTurn()
 
     return (
       <div>
@@ -192,7 +194,7 @@ class UI extends React.Component {
         <div className="status">{status}</div>
         <Board squares={this.state.squares}
                handleClick={this.handleClick}
-               xIsNext={this.state.xIsNext} />
+               myTurn={myTurn} />
       </div>
     );
   }

@@ -119,19 +119,12 @@ class UI extends React.Component {
   }
 
   handleClick(i) {
-    if(this.state.isX != this.state.xIsNext) {
+    if(!this.myTurn()) {
+      // if we get here, something's gone wrong
+      console.log("click triggered even though it's not our turn")
       return
     }
-    const squares = this.state.squares.slice();
-    if (calculateWinner(squares) || squares[i]) {
-      return;
-    }
-    squares[i] = this.state.xIsNext ? 'X' : 'O';
-    this.state.conn.send(i)
-    this.setState({
-      squares: squares,
-      xIsNext: !this.state.xIsNext
-    });
+    this.doMove(i);
   }
 
   myTurn() {
@@ -141,16 +134,21 @@ class UI extends React.Component {
 
   handleData(i) {
     console.log("received: ",i)
-    if(this.state.isX == this.state.xIsNext) {
-      // this would be a bad state...
-      console.log(this.state.isX,this.state.xIsNext)
+    if(this.myTurn()) {
+      // if we get here, something's gone wrong
+      console.log("opponent moved received even though it's our turn")
       return
     }
+    this.doMove(i);
+  }
+
+  doMove(i) {
     const squares = this.state.squares.slice();
     if (calculateWinner(squares) || squares[i]) {
       return;
     }
     squares[i] = this.state.xIsNext ? 'X' : 'O';
+    this.state.conn.send(i)
     this.setState({
       squares: squares,
       xIsNext: !this.state.xIsNext

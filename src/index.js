@@ -238,7 +238,8 @@ class UI extends React.Component {
     this.doMove(i);
   }
 
-  doMove(i) {
+  doMove(an) {
+    console.log(validateMove(an,'white',this.state.board));
   }
 
   receiveConnection(c) {
@@ -329,7 +330,39 @@ const chessBoard = [
   backRow.map(name => { return {name:name,color:'white'} }),
 ]
 
-// ========================================
+function onePieceCanMove(piece,player,target,board) {
+
+}
+
+function enemyAtTarget(player,target,board) {
+
+}
+
+function inCheck(player,board) {
+
+}
+
+function doMove(an,board) {
+
+}
+
+function validateMove(an,player,board) {
+  let piece;
+  if (an.charAt(0).toUpperCase() == an.charAt(0)) {
+    piece = an.charAt(0)
+  } else {
+    piece = 'P'
+  }
+  const target = an.substring(an.length-2)
+  const isCapture = an.charAt(an.length-3) == 'x'
+  const canMove = onePieceCanMove(piece,player,target,board)
+  const matchesCapture = enemyAtTarget(player,target,board) == isCapture
+  const avoidsCheck = inCheck(player,doMove(an,board))
+  // it's valid if there's exactly one piece that can move to the
+  // destination and, if a capture is listed, if there's an enemy
+  // piece at that location, and if you don't enter check
+  return canMove && matchesCapture && avoidsCheck
+}
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<UI />);

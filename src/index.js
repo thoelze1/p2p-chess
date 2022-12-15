@@ -55,12 +55,12 @@ class ChessSquare extends React.Component {
   
   renderPiece(name) {
     const m = {
-      'king':   <FontAwesomeIcon icon={solid('chess-king')} />,
-      'queen':  <FontAwesomeIcon icon={solid('chess-queen')} />,
-      'rook':   <FontAwesomeIcon icon={solid('chess-rook')} />,
-      'bishop': <FontAwesomeIcon icon={solid('chess-bishop')} />,
-      'knight': <FontAwesomeIcon icon={solid('chess-knight')} />,
-      'pawn':   <FontAwesomeIcon icon={solid('chess-pawn')} />,
+      'K':   <FontAwesomeIcon icon={solid('chess-king')} />,
+      'Q':  <FontAwesomeIcon icon={solid('chess-queen')} />,
+      'R':   <FontAwesomeIcon icon={solid('chess-rook')} />,
+      'B': <FontAwesomeIcon icon={solid('chess-bishop')} />,
+      'N': <FontAwesomeIcon icon={solid('chess-knight')} />,
+      'P':   <FontAwesomeIcon icon={solid('chess-pawn')} />,
     }
     return m[name]
   }
@@ -315,8 +315,8 @@ class UI extends React.Component {
   }
 }
 
-const backRow = ['rook','knight','bishop','queen','king','bishop','knight','rook']
-const pawns = Array(8).fill('pawn')
+const backRow = ['R','N','B','Q','K','B','N','R']
+const pawns = Array(8).fill('P')
 const empty = Array(8).fill('')
 const chessBoard = [
   backRow.map(name => { return {name:name,color:'black'} }),

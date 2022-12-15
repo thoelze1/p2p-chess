@@ -67,14 +67,14 @@ class ChessSquare extends React.Component {
 
   colorToStyle(color) {
     const m = {
-      'white': 'text-white chess-outline',
-      'black': 'text-black',
+      'white': 'text-white',
+      'black': 'text-slate-800',
     }
     return m[color]
   }
 
   render() {
-    let classes = (this.props.i % 2) == (this.props.j % 2) ? "chessSquare bg-gray-300" : "chessSquare bg-gray-500";
+    let classes = (this.props.i % 2) == (this.props.j % 2) ? "chessSquare bg-gray-300" : "chessSquare bg-gray-400";
     classes = classes.concat(' ',this.colorToStyle(this.props.piece.color));
 
     return (

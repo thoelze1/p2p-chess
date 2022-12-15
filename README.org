@@ -1,6 +1,8 @@
 * Goals
 - Other frontends other than the JS ons
 - Accessible (moves can be made in algebraic notation)
+- Chess clock
+- Choose color
 
 * Next Steps
 - Design plan for error handling. If peers get disconnected, how is

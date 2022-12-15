@@ -297,14 +297,16 @@ class UI extends React.Component {
                                                     myTurn={myTurn} /> : null;
     const id = this.state.host ? "Board ID: ".concat(this.state.myID) : null 
     return (
-      <div className="w-96 text-center">
+      <div className="w-96 mx-auto text-center">
         <ConnectionPanel host={this.hostBoard}
                          join={this.connectToID} />
         <div className="p-2 text-center">
           {id}
         </div>
         <div className="status">{status}</div>
-        {board}
+        <div className="mx-auto">
+          {board}
+        </div>
       </div>
     );
   }

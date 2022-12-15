@@ -54,6 +54,43 @@ class Board extends React.Component {
   }
 }
 
+class ConnectionPanel extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      fieldValue: ""
+    };
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleChange(event) {
+    this.setState({fieldValue: event.target.value});
+  }
+
+  handleSubmit(event) {
+    event.preventDefault(); // prevents page refresh
+    this.props.connectToID(this.state.fieldValue);
+  }
+
+  render() {
+    return (
+      <div>
+        <span>
+          Your peer ID: {this.props.myID ? this.props.myID : "waiting"}
+        </span>
+        <form onSubmit={this.handleSubmit}>
+          <label>
+            Connect to ID:
+            <textarea value={this.state.fieldValue} onChange={this.handleChange}/>
+          </label>
+          <input type="submit" value="Submit" />
+        </form>
+      </div>
+    );
+  }
+}
+
 class UI extends React.Component {
   constructor(props) {
     super(props);
@@ -78,14 +115,13 @@ class UI extends React.Component {
     this.state = {
       peer: p,
       myID: null,
-      friendID: "",
+      friendID: null,
       isX: null,
       conn: null,
       squares: Array(9).fill(null),
       xIsNext: true,
     };
     // see https://reactjs.org/docs/forms.html
-    this.handleChange = this.handleChange.bind(this);
     this.connectToID = this.connectToID.bind(this);
     this.handleClick = this.handleClick.bind(this);
   }
@@ -124,10 +160,8 @@ class UI extends React.Component {
     });    
   }
   
-  connectToID(event) {
-    // prevents page refresh
-    event.preventDefault()
-    const c = this.state.peer.connect(this.state.friendID);
+  connectToID(id) {
+    const c = this.state.peer.connect(id);
     c.on("error", (err) => {
       console.log(err)
     });
@@ -141,32 +175,18 @@ class UI extends React.Component {
     this.setState({
       isX: false,
       conn: c,
+      friendID: id,
     })
-  }
-
-  handleChange(event) {
-    this.setState({friendID: event.target.value});
-    console.log(this.state.friendID);
   }
 
   render() {
     return (
       <div>
-        <div>
-          <span>
-            Your peer ID: {this.state.myID ? this.state.myID : "waiting"}
-          </span>
-          <form onSubmit={this.connectToID}>
-            <label>
-              Connect to ID:
-              <textarea value={this.state.friendID} onChange={this.handleChange}/>
-            </label>
-            <input type="submit" value="Submit" />
-          </form>
-          <Board squares={this.state.squares}
-                 handleClick={this.handleClick}
-                 xIsNext={this.state.xIsNext} />
-        </div>
+        <ConnectionPanel myID={this.state.myID}
+                         connectToID={this.connectToID} />
+        <Board squares={this.state.squares}
+               handleClick={this.handleClick}
+               xIsNext={this.state.xIsNext} />
       </div>
     );
   }

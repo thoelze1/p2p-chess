@@ -85,24 +85,6 @@ class ChessSquare extends React.Component {
   }
 }
 
-class ChessRow extends React.Component {
-  constructor(props) {
-    super(props)
-  }
-
-  render() {
-    const squares = []
-    this.props.row.forEach((square,j) => {
-      squares.unshift(<ChessSquare key={j}
-                                   i={this.props.i}
-                                   j={j}
-                                   piece={square}
-                                   onClick={this.props.onClick} />);
-    });
-    return <div className="board-row">{squares}</div>
-  }
-}
-
 class ChessBoard extends React.Component {
   constructor(props) {
     super(props);
@@ -111,7 +93,15 @@ class ChessBoard extends React.Component {
   render() {
     const rows = [];
     this.props.board.forEach((row,i) => {
-      rows.push(<ChessRow key={i} row={row} i={i} onClick={this.props.onClick}/> );
+      const squares = []
+      row.forEach((square,j) => {
+        squares.unshift(<ChessSquare key={j}
+                                     i={i}
+                                     j={j}
+                                     piece={square}
+                                     onClick={this.props.onClick} /> );
+      });
+      rows.push(<div key={i} className="board-row">{squares}</div>)
     });
     return <div>{rows}</div>;
   }

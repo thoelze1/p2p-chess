@@ -78,7 +78,7 @@ class ChessSquare extends React.Component {
     classes = classes.concat(' ',this.colorToStyle(this.props.piece.color));
 
     return (
-      <button className={classes}>
+      <button className={classes} onClick={() => this.props.onClick(this.props.i,this.props.j)}>
         {this.renderPiece(this.props.piece.name)}
       </button>
     );
@@ -96,7 +96,8 @@ class ChessRow extends React.Component {
       squares.unshift(<ChessSquare key={j}
                                    i={this.props.i}
                                    j={j}
-                                   piece={square} />);
+                                   piece={square}
+                                   onClick={this.props.onClick} />);
     });
     return <div className="board-row">{squares}</div>
   }
@@ -110,7 +111,7 @@ class ChessBoard extends React.Component {
   render() {
     const rows = [];
     this.props.board.forEach((row,i) => {
-      rows.push(<ChessRow key={i} row={row} i={i}/> );
+      rows.push(<ChessRow key={i} row={row} i={i} onClick={this.props.onClick}/> );
     });
     return <div>{rows}</div>;
   }
@@ -189,7 +190,8 @@ class UI extends React.Component {
       show: false,
       host: false,
       board: chessBoard,
-      fieldValue: ""
+      fieldValue: "",
+      src: null
     };
   }
 
@@ -217,13 +219,17 @@ class UI extends React.Component {
     })
   }
   
-  handleClick(i) {
-    if(!this.myTurn()) {
-      // if we get here, something's gone wrong
-      console.log("click triggered even though it's not our turn")
-      return
+  handleClick(i,j) {
+    if(!this.state.src) {
+      this.setState({
+        src: [i,j]
+      })
+    } else {
+      this.setState({
+        src: null,
+        board: execMove(this.state.src,[i,j],this.state.board)
+      })
     }
-    this.doMove(i);
   }
 
   myTurn() {
@@ -320,7 +326,7 @@ class UI extends React.Component {
     const id = this.state.host ? "Board ID: ".concat(this.state.myID) : null 
     return (
       <div className="w-96 mx-auto text-center">
-        <ChessBoard board={this.state.board} />
+        <ChessBoard board={this.state.board} onClick={this.handleClick} />
         <input className="border w-96 p-2 text-center"
                value={this.state.fieldValue}
                onChange={this.handleChange}

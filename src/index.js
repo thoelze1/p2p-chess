@@ -135,7 +135,8 @@ class UI extends React.Component {
   }
 
   myTurn() {
-    return this.state.isX == this.state.xIsNext;
+    return (this.state.isX == this.state.xIsNext) &&
+      !calculateWinner(this.state.squares);
   }
 
   handleData(i) {

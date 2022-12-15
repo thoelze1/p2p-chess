@@ -23,17 +23,8 @@ class Board extends React.Component {
   }
 
   render() {
-    const winner = calculateWinner(this.props.squares);
-    let status;
-    if (winner) {
-      status = 'Winner: ' + winner;
-    } else {
-      status = 'Next player: ' + (this.props.xIsNext ? 'X' : 'O');
-    }
-        
     return (
       <div>
-        <div className="status">{status}</div>
         <div className="board-row">
           {this.renderSquare(0)}
           {this.renderSquare(1)}
@@ -142,6 +133,10 @@ class UI extends React.Component {
     });
   }
 
+  myTurn() {
+    return this.state.isX == this.state.xIsNext;
+  }
+
   handleData(i) {
     console.log("received: ",i)
     if(this.state.isX == this.state.xIsNext) {
@@ -180,10 +175,21 @@ class UI extends React.Component {
   }
 
   render() {
+    const winner = calculateWinner(this.state.squares);
+    let status;
+    if (winner) {
+      status = 'You ' + ((winner == 'X') == this.state.isX ? 'won!' : 'lost!')
+    } else if (this.state.squares.every(val => val != null)) {
+      status = 'Game over: no winner!'
+    } else {
+      status = this.myTurn() ? "Your move" : "Waiting for opponent";
+    }
+
     return (
       <div>
         <ConnectionPanel myID={this.state.myID}
                          connectToID={this.connectToID} />
+        <div className="status">{status}</div>
         <Board squares={this.state.squares}
                handleClick={this.handleClick}
                xIsNext={this.state.xIsNext} />

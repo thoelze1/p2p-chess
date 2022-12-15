@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import { Peer } from "peerjs";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { solid, regular, brands, icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 
 function Square(props) {
   return (
@@ -196,6 +198,12 @@ class UI extends React.Component {
         <Board squares={this.state.squares}
                handleClick={this.handleClick}
                myTurn={myTurn} />
+        <FontAwesomeIcon icon={solid('chess-pawn')} />
+        <FontAwesomeIcon icon={solid('chess-king')} />
+        <FontAwesomeIcon icon={solid('chess-queen')} />
+        <FontAwesomeIcon icon={solid('chess-rook')} />
+        <FontAwesomeIcon icon={solid('chess-bishop')} />
+        <FontAwesomeIcon icon={solid('chess-knight')} />
       </div>
     );
   }

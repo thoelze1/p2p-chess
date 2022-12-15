@@ -66,8 +66,9 @@ class ChessSquare extends React.Component {
   }
 
   render() {
+    const classes = (this.props.i % 2) == (this.props.j % 2) ? "square" : "square bg-gray-500";
     return (
-      <button className="square">
+      <button className={classes}>
         {this.renderPiece(this.props.piece)}
       </button>
     );
@@ -80,9 +81,11 @@ class ChessRow extends React.Component {
   }
 
   render() {
-    return (
-      <div className="board-row"></div>
-    )
+    const squares = []
+    this.props.row.forEach((square,j) => {
+      squares.push(<ChessSquare key={j} i={this.props.i} j={j} piece={square} />);
+    });
+    return <div className="board-row">{squares}</div>
   }
 }
 
@@ -91,33 +94,12 @@ class ChessBoard extends React.Component {
     super(props);
   }
 
-  renderSquare(i) {
-    return <Square value={this.props.squares[i]}
-                   onClick={() => this.props.handleClick(i)}
-                   myTurn={this.props.myTurn}
-           />;
-  }
-
   render() {
-    return (
-      <div>
-        <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
-      </div>
-    );
+    const rows = [];
+    this.props.board.forEach((row,i) => {
+      rows.push(<ChessRow key={i} row={row} i={i}/> );
+    });
+    return <div>{rows}</div>;
   }
 }
 
@@ -262,16 +244,13 @@ class UI extends React.Component {
       status = this.myTurn() ? 'Your move' : 'Waiting for opponent';
     }
     const myTurn = this.myTurn()
-
+    const board = [ ['','',''] , ['','king',''] , ['','',''] ];
     return (
       <div>
         <ConnectionPanel myID={this.state.myID}
                          connectToID={this.connectToID} />
         <div className="status">{status}</div>
-        <TicTacToeBoard squares={this.state.squares}
-                        handleClick={this.handleClick}
-                        myTurn={myTurn} />
-        <ChessSquare piece={""} />
+        <ChessBoard board={board} />
       </div>
     );
   }

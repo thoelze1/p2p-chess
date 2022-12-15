@@ -86,24 +86,17 @@ class ConnectionPanel extends React.Component {
 class UI extends React.Component {
   constructor(props) {
     super(props);
+    // see https://reactjs.org/docs/forms.html
+    this.connectToID = this.connectToID.bind(this);
+    this.handleClick = this.handleClick.bind(this);
+    this.receiveConnection = this.receiveConnection.bind(this);
     const p = new Peer();
     p.on('open', (id) => {
       this.setState({
         myID: id,
       });
     });
-    p.on('connection', (c) => {
-      this.setState({
-        isX: true,
-      })
-      console.log("received connection")
-      c.on('data', (data) => {
-        this.handleData(data)
-      });
-      this.setState({
-        conn: c,
-      })
-    });
+    p.on('connection', this.receiveConnection);
     this.state = {
       peer: p,
       myID: null,
@@ -113,9 +106,6 @@ class UI extends React.Component {
       squares: Array(9).fill(null),
       xIsNext: true,
     };
-    // see https://reactjs.org/docs/forms.html
-    this.connectToID = this.connectToID.bind(this);
-    this.handleClick = this.handleClick.bind(this);
   }
 
   handleClick(i) {
@@ -154,6 +144,17 @@ class UI extends React.Component {
       xIsNext: !this.state.xIsNext
     });    
   }
+
+  receiveConnection(c) {
+    console.log("received connection")
+    c.on('data', (data) => {
+      this.handleData(data)
+    });
+    this.setState({
+      isX: true,
+      conn: c,
+    })
+  }
   
   connectToID(id) {
     const c = this.state.peer.connect(id);
@@ -161,7 +162,6 @@ class UI extends React.Component {
       console.log(err)
     });
     c.on("open", () => {
-      //c.send("hi!");
       console.log("sent connection successful")
     });
     c.on('data', (data) => {

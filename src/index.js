@@ -157,15 +157,8 @@ class UI extends React.Component {
     this.connectToID = this.connectToID.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.receiveConnection = this.receiveConnection.bind(this);
-    const p = new Peer();
-    p.on('open', (id) => {
-      this.setState({
-        myID: id,
-      });
-    });
-    p.on('connection', this.receiveConnection);
     this.state = {
-      peer: p,
+      peer: null,
       myID: null,
       friendID: null,
       isX: null,
@@ -173,6 +166,23 @@ class UI extends React.Component {
       squares: Array(9).fill(null),
       xIsNext: true,
     };
+  }
+
+  componentDidMount() {
+    this.initializePeer()
+  }
+
+  initializePeer() {
+    const p = new Peer();
+    p.on('open', (id) => {
+      this.setState({
+        myID: id,
+      });
+    });
+    p.on('connection', this.receiveConnection);
+    this.setState({
+      peer: p
+    });
   }
 
   handleClick(i) {

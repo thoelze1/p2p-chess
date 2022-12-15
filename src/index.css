@@ -36,6 +36,17 @@ ol, ul {
   width: 34px;
 }
 
+.chessSquare {
+  float: left;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 34px;
+  height: 34px;
+  padding: 0;
+  text-align: center;
+  width: 34px;
+}
+
 .square:focus {
   outline: none;
 }
@@ -51,4 +62,9 @@ ol, ul {
 
 .game-info {
   margin-left: 20px;
+}
+
+.chess-outline {
+  stroke: black;
+  stroke-width: 20;
 }

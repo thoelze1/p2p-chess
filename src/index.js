@@ -65,11 +65,21 @@ class ChessSquare extends React.Component {
     return m[name]
   }
 
+  colorToStyle(color) {
+    const m = {
+      'white': 'text-white chess-outline',
+      'black': 'text-black',
+    }
+    return m[color]
+  }
+
   render() {
-    const classes = (this.props.i % 2) == (this.props.j % 2) ? "square" : "square bg-gray-500";
+    let classes = (this.props.i % 2) == (this.props.j % 2) ? "chessSquare bg-gray-300" : "chessSquare bg-gray-500";
+    classes = classes.concat(' ',this.colorToStyle(this.props.piece.color));
+
     return (
       <button className={classes}>
-        {this.renderPiece(this.props.piece)}
+        {this.renderPiece(this.props.piece.name)}
       </button>
     );
   }
@@ -260,14 +270,14 @@ const backRow = ['rook','knight','bishop','queen','king','bishop','knight','rook
 const pawns = Array(8).fill('pawn')
 const empty = Array(8).fill('')
 const chessBoard = [
-  backRow,
-  pawns,
+  backRow.map(name => { return {name:name,color:'white'} }),
+  pawns.map(name => { return {name:name,color:'white'} }),
   empty,
   empty,
   empty,
   empty,
-  pawns,
-  backRow
+  pawns.map(name => { return {name:name,color:'black'} }),
+  backRow.map(name => { return {name:name,color:'black'} }),
 ]
 
 // ========================================

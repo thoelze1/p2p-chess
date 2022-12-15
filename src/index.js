@@ -244,17 +244,31 @@ class UI extends React.Component {
       status = this.myTurn() ? 'Your move' : 'Waiting for opponent';
     }
     const myTurn = this.myTurn()
-    const board = [ ['','',''] , ['','king',''] , ['','',''] ];
+
     return (
       <div>
         <ConnectionPanel myID={this.state.myID}
                          connectToID={this.connectToID} />
         <div className="status">{status}</div>
-        <ChessBoard board={board} />
+        <ChessBoard board={chessBoard} />
       </div>
     );
   }
 }
+
+const backRow = ['rook','knight','bishop','queen','king','bishop','knight','rook']
+const pawns = Array(8).fill('pawn')
+const empty = Array(8).fill('')
+const chessBoard = [
+  backRow,
+  pawns,
+  empty,
+  empty,
+  empty,
+  empty,
+  pawns,
+  backRow
+]
 
 // ========================================
 

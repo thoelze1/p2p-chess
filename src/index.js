@@ -173,6 +173,8 @@ class UI extends React.Component {
     this.receiveConnection = this.receiveConnection.bind(this);
     this.initializePeer = this.initializePeer.bind(this);
     this.hostBoard = this.hostBoard.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.handleKey = this.handleKey.bind(this);
     this.state = {
       peer: null,
       myID: null,
@@ -182,7 +184,9 @@ class UI extends React.Component {
       squares: Array(9).fill(null),
       xIsNext: true,
       show: false,
-      host: false
+      host: false,
+      board: chessBoard,
+      fieldValue: ""
     };
   }
 
@@ -235,16 +239,6 @@ class UI extends React.Component {
   }
 
   doMove(i) {
-    const squares = this.state.squares.slice();
-    if (calculateWinner(squares) || squares[i]) {
-      return;
-    }
-    squares[i] = this.state.xIsNext ? 'X' : 'O';
-    this.state.conn.send(i)
-    this.setState({
-      squares: squares,
-      xIsNext: !this.state.xIsNext
-    });    
   }
 
   receiveConnection(c) {
@@ -276,7 +270,20 @@ class UI extends React.Component {
       friendID: id,
     })
   }
+  
+  handleChange(event) {
+    this.setState({fieldValue: event.target.value});
+  }
 
+  handleKey(event) {
+    if(event.key === 'Enter') {
+      this.doMove(this.state.fieldValue);
+      this.setState({
+        fieldValue: ""
+      })
+    }
+  }
+  
   render() {
     const winner = calculateWinner(this.state.squares);
     let status;
@@ -298,15 +305,11 @@ class UI extends React.Component {
     const id = this.state.host ? "Board ID: ".concat(this.state.myID) : null 
     return (
       <div className="w-96 mx-auto text-center">
-        <ConnectionPanel host={this.hostBoard}
-                         join={this.connectToID} />
-        <div className="p-2 text-center">
-          {id}
-        </div>
-        <div className="status">{status}</div>
-        <div className="mx-auto">
-          {board}
-        </div>
+        <ChessBoard board={this.state.board} />
+        <input className="border w-96 p-2 text-center"
+               value={this.state.fieldValue}
+               onChange={this.handleChange}
+               onKeyPress={this.handleKey}/>
       </div>
     );
   }

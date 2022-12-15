@@ -93,7 +93,10 @@ class ChessRow extends React.Component {
   render() {
     const squares = []
     this.props.row.forEach((square,j) => {
-      squares.push(<ChessSquare key={j} i={this.props.i} j={j} piece={square} />);
+      squares.unshift(<ChessSquare key={j}
+                                   i={this.props.i}
+                                   j={j}
+                                   piece={square} />);
     });
     return <div className="board-row">{squares}</div>
   }
@@ -239,7 +242,7 @@ class UI extends React.Component {
   }
 
   doMove(an) {
-    console.log(validateMove(an,'white',this.state.board));
+    console.log(pieceAtTarget('black',an,this.state.board))
   }
 
   receiveConnection(c) {
@@ -320,22 +323,26 @@ const backRow = ['R','N','B','Q','K','B','N','R']
 const pawns = Array(8).fill('P')
 const empty = Array(8).fill('')
 const chessBoard = [
-  backRow.map(name => { return {name:name,color:'black'} }),
-  pawns.map(name => { return {name:name,color:'black'} }),
-  empty,
-  empty,
-  empty,
-  empty,
-  pawns.map(name => { return {name:name,color:'white'} }),
   backRow.map(name => { return {name:name,color:'white'} }),
+  pawns.map(name => { return {name:name,color:'white'} }),
+  empty,
+  empty,
+  empty,
+  empty,
+  pawns.map(name => { return {name:name,color:'black'} }),
+  backRow.map(name => { return {name:name,color:'black'} }),
 ]
 
 function onePieceCanMove(piece,player,target,board) {
 
 }
 
-function enemyAtTarget(player,target,board) {
-
+function pieceAtTarget(player,target,board) {
+  const indices = anToIndices(target)
+  console.log(indices)
+  const i = indices[0]
+  const j = indices[1]
+  return board[i][j] && board[i][j].color == player
 }
 
 function inCheck(player,board) {
@@ -346,17 +353,33 @@ function doMove(an,board) {
 
 }
 
+function anToIndices(an) {
+  const file = an.charAt(0)
+  const rank = an.charAt(1)
+  const i = rank-1
+  const j = file.charCodeAt(0)-97
+  return [i,j]
+}
+
+function enemy(player) {
+  const m = {
+    'white': 'black',
+    'black': 'white'
+  }
+  return m[player]
+}
+
 function validateMove(an,player,board) {
   let piece;
-  if (an.charAt(0).toUpperCase() == an.charAt(0)) {
-    piece = an.charAt(0)
+  if (an.indexOf('x') > 0) {
+    piece = an.substring(0,an.length-3)
   } else {
-    piece = 'P'
+    piece = an.substring(0,an.length-2)
   }
   const target = an.substring(an.length-2)
   const isCapture = an.charAt(an.length-3) == 'x'
   const canMove = onePieceCanMove(piece,player,target,board)
-  const matchesCapture = enemyAtTarget(player,target,board) == isCapture
+  const matchesCapture = pieceAtTarget(enemy(player),target,board) == isCapture
   const avoidsCheck = inCheck(player,doMove(an,board))
   // it's valid if there's exactly one piece that can move to the
   // destination and, if a capture is listed, if there's an enemy

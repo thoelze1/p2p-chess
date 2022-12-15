@@ -270,14 +270,14 @@ const backRow = ['rook','knight','bishop','queen','king','bishop','knight','rook
 const pawns = Array(8).fill('pawn')
 const empty = Array(8).fill('')
 const chessBoard = [
-  backRow.map(name => { return {name:name,color:'white'} }),
-  pawns.map(name => { return {name:name,color:'white'} }),
-  empty,
-  empty,
-  empty,
-  empty,
-  pawns.map(name => { return {name:name,color:'black'} }),
   backRow.map(name => { return {name:name,color:'black'} }),
+  pawns.map(name => { return {name:name,color:'black'} }),
+  empty,
+  empty,
+  empty,
+  empty,
+  pawns.map(name => { return {name:name,color:'white'} }),
+  backRow.map(name => { return {name:name,color:'white'} }),
 ]
 
 // ========================================

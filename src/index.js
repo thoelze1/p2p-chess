@@ -7,7 +7,7 @@ import { solid, regular, brands, icon } from '@fortawesome/fontawesome-svg-core/
 
 function Square(props) {
   return (
-    <button className="square" onClick={props.onClick} disabled={!props.myTurn}>
+    <button className="border w-12 h-12" onClick={props.onClick} disabled={!props.myTurn}>
       {props.value}
     </button>
   );
@@ -27,18 +27,18 @@ class TicTacToeBoard extends React.Component {
 
   render() {
     return (
-      <div>
-        <div className="board-row">
+      <div className="flex flex-col">
+        <div className="flex-row h-12">
           {this.renderSquare(0)}
           {this.renderSquare(1)}
           {this.renderSquare(2)}
         </div>
-        <div className="board-row">
+        <div className="flex-row h-12">
           {this.renderSquare(3)}
           {this.renderSquare(4)}
           {this.renderSquare(5)}
         </div>
-        <div className="board-row">
+        <div className="flex-row h-12">
           {this.renderSquare(6)}
           {this.renderSquare(7)}
           {this.renderSquare(8)}

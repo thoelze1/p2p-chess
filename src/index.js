@@ -178,12 +178,14 @@ class UI extends React.Component {
   render() {
     const winner = calculateWinner(this.state.squares);
     let status;
-    if (winner) {
+    if (this.state.conn == null) {
+      status = 'Waiting for game to begin'
+    } else if (winner) {
       status = 'You ' + ((winner == 'X') == this.state.isX ? 'won!' : 'lost!')
     } else if (this.state.squares.every(val => val != null)) {
       status = 'Game over: no winner!'
     } else {
-      status = this.myTurn() ? "Your move" : "Waiting for opponent";
+      status = this.myTurn() ? 'Your move' : 'Waiting for opponent';
     }
     const myTurn = this.myTurn()
 

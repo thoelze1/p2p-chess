@@ -242,7 +242,18 @@ class UI extends React.Component {
   }
 
   doMove(an) {
-    console.log(pieceAtTarget('black',an,this.state.board))
+    const i1 = parseInt(an.charAt(0),10)
+    const j1 = parseInt(an.charAt(1),10)
+    const i2 = parseInt(an.charAt(2),10)
+    const j2 = parseInt(an.charAt(3),10)
+    const newBoard = execMove([i1,j1],[i2,j2],this.state.board)
+    console.log(newBoard)
+    /*
+    this.setState({
+      board: newBoard
+    })
+*/
+    //console.log(getAllPlayerPieces('white',this.state.board))
   }
 
   receiveConnection(c) {
@@ -321,18 +332,19 @@ class UI extends React.Component {
 
 const backRow = ['R','N','B','Q','K','B','N','R']
 const pawns = Array(8).fill('P')
-const empty = Array(8).fill('')
+const empty = Array(8).fill({})
 const chessBoard = [
   backRow.map(name => { return {name:name,color:'white'} }),
   pawns.map(name => { return {name:name,color:'white'} }),
-  empty,
-  empty,
-  empty,
-  empty,
+  empty.slice(),
+  empty.slice(),
+  empty.slice(),
+  empty.slice(),
   pawns.map(name => { return {name:name,color:'black'} }),
   backRow.map(name => { return {name:name,color:'black'} }),
 ]
 
+// returns indices of all pieces that can move to given loc.
 function onePieceCanMove(piece,player,target,board) {
 
 }
@@ -345,12 +357,82 @@ function pieceAtTarget(player,target,board) {
   return board[i][j] && board[i][j].color == player
 }
 
-function inCheck(player,board) {
-
+/*
+function getAttackRay(src,board) {
+  const attacker = board[src[0]][src[1]]
+  const m = {
+    'P': () => if(attacker.color == 'white') {
+      return [ [src[0]-1,src[1]+1] , [src[0]
 }
 
-function doMove(an,board) {
+function isAttacking(src,target,board) {
+  const attacker = board[src[0]][src[1]].piece
+  const m = {
+    'P': (s,d) => {}
+    'N': (s,d) => { 
+    'B'
+    'R'
+    'Q'
+    'K'
+  if(attacker == 'P') {
+  }
+}
+*/
 
+
+function getAllPieces(board) {
+  const match = (square) => {
+    return square != null
+  }
+  return getMatchingPieces(match,board)
+}
+
+function getAllPlayerPieces(player,board) {
+  const match = (square) => {
+    return square.color == player
+  }
+  return getMatchingPieces(match,board)
+}
+
+function getPlayerPieces(player,piece,board) {
+  const match = (square) => {
+    return square.color = player && square.piece == piece
+  }
+  return getMatchingPieces(match,board)
+}
+
+function getMatchingPieces(match,board) {
+  return board.reduce((acc,row,i) => {
+    const js = row.reduce((acc,square,j) => {
+      return match(square) ? acc.concat([j]) : acc
+    },[])
+    const coords = js.map((j) => { return [i,j] })
+    return acc.concat(coords)
+  },[])     
+}
+
+function inCheck(player,board) {
+  /*
+  const kingLoc = getPlayerPieces(player,'K',board)[0]
+  const enemyPieces = getAllPlayerPieces(enemy(player),board)
+  for(loc in enemyPieces) {
+    if isAttacking(loc,kingLoc,board) {
+      return true
+    }
+  }
+  return false// check if any pieces are attacking king
+  */
+}
+
+function execMove(src,dst,board) {
+  let newBoard = board.slice();
+  console.log(src,dst)
+  newBoard[dst[0]][dst[1]] = {
+    name: board[src[0]][src[1]].name,
+    color: board[src[0]][src[1]].color
+  }
+  newBoard[src[0]][src[1]] = {};
+  return newBoard;
 }
 
 function anToIndices(an) {
@@ -378,13 +460,13 @@ function validateMove(an,player,board) {
   }
   const target = an.substring(an.length-2)
   const isCapture = an.charAt(an.length-3) == 'x'
-  const canMove = onePieceCanMove(piece,player,target,board)
+  const pieces = onePieceCanMove(piece,player,target,board)
   const matchesCapture = pieceAtTarget(enemy(player),target,board) == isCapture
-  const avoidsCheck = inCheck(player,doMove(an,board))
+  const avoidsCheck = inCheck(player,execMove(pieces[0],anToIndices(target),board))
   // it's valid if there's exactly one piece that can move to the
   // destination and, if a capture is listed, if there's an enemy
   // piece at that location, and if you don't enter check
-  return canMove && matchesCapture && avoidsCheck
+  return pieces.length ==  1 && matchesCapture && avoidsCheck
 }
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

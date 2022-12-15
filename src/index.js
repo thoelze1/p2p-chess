@@ -120,31 +120,45 @@ class ConnectionPanel extends React.Component {
       fieldValue: ""
     };
     this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleSubmitJoin = this.handleSubmitJoin.bind(this);
+    this.handleSubmitNew = this.handleSubmitNew.bind(this);
+    this.handleKey = this.handleKey.bind(this);
   }
 
+  handleSubmitNew(event) {
+    this.props.host();
+  }
+  
   handleChange(event) {
     this.setState({fieldValue: event.target.value});
   }
 
-  handleSubmit(event) {
+  handleSubmitJoin(event) {
     event.preventDefault(); // prevents page refresh
-    this.props.connectToID(this.state.fieldValue);
+    this.props.join(this.state.fieldValue);
   }
 
+  handleKey(event) {
+    if(event.key === 'Enter') {
+      this.props.join(this.state.fieldValue);
+    }
+  }
+  
   render() {
     return (
-      <div>
-        <span>
-          Your peer ID: {this.props.myID ? this.props.myID : "waiting"}
-        </span>
-        <form onSubmit={this.handleSubmit}>
-          <label>
-            Connect to ID:
-            <textarea value={this.state.fieldValue} onChange={this.handleChange}/>
-          </label>
-          <input type="submit" value="Submit" />
-        </form>
+      <div className="flex flex-col gap-2 w-96">
+        <div className="flex-1">
+          <button className="p-4 bg-slate-300 w-96"
+                  onClick={this.handleSubmitNew}>New chess board</button>
+        </div>
+        <div className="flex-1">
+          <button className="p-4 bg-slate-300 w-96"
+                  onClick={this.handleSubmitJoin}>Join chess board</button>
+          <input className="border w-96 p-2 text-center"
+                 value={this.state.fieldValue}
+                 onChange={this.handleChange}
+                 onKeyPress={this.handleKey}/>
+        </div>
       </div>
     );
   }
@@ -157,6 +171,8 @@ class UI extends React.Component {
     this.connectToID = this.connectToID.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.receiveConnection = this.receiveConnection.bind(this);
+    this.initializePeer = this.initializePeer.bind(this);
+    this.hostBoard = this.hostBoard.bind(this);
     this.state = {
       peer: null,
       myID: null,
@@ -165,6 +181,8 @@ class UI extends React.Component {
       conn: null,
       squares: Array(9).fill(null),
       xIsNext: true,
+      show: false,
+      host: false
     };
   }
 
@@ -185,6 +203,13 @@ class UI extends React.Component {
     });
   }
 
+  hostBoard() {
+    this.setState({
+      show: true,
+      host: true
+    })
+  }
+  
   handleClick(i) {
     if(!this.myTurn()) {
       // if we get here, something's gone wrong
@@ -245,6 +270,7 @@ class UI extends React.Component {
       this.handleData(data)
     });
     this.setState({
+      show: true,
       isX: false,
       conn: c,
       friendID: id,
@@ -254,23 +280,31 @@ class UI extends React.Component {
   render() {
     const winner = calculateWinner(this.state.squares);
     let status;
-    if (this.state.conn == null) {
-      status = 'Waiting for game to begin'
+    if (!this.state.show) {
+      status = null
+    } else if (this.state.conn == null) {
+      status = 'Waiting for an opponent to join'
     } else if (winner) {
       status = 'You ' + ((winner == 'X') == this.state.isX ? 'won!' : 'lost!')
     } else if (this.state.squares.every(val => val != null)) {
       status = 'Game over: no winner!'
     } else {
-      status = this.myTurn() ? 'Your move' : 'Waiting for opponent';
+      status = this.myTurn() ? 'Your move' : 'Waiting for opponent to play...';
     }
     const myTurn = this.myTurn()
-
+    const board = this.state.show ? <TicTacToeBoard squares={this.state.squares}
+                                                    handleClick={this.handleClick}
+                                                    myTurn={myTurn} /> : null;
+    const id = this.state.host ? "Board ID: ".concat(this.state.myID) : null 
     return (
-      <div>
-        <ConnectionPanel myID={this.state.myID}
-                         connectToID={this.connectToID} />
+      <div className="w-96 text-center">
+        <ConnectionPanel host={this.hostBoard}
+                         join={this.connectToID} />
+        <div className="p-2 text-center">
+          {id}
+        </div>
         <div className="status">{status}</div>
-        <ChessBoard board={chessBoard} />
+        {board}
       </div>
     );
   }

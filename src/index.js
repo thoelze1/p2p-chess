@@ -13,7 +13,80 @@ function Square(props) {
   );
 }
 
-class Board extends React.Component {
+class TicTacToeBoard extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  renderSquare(i) {
+    return <Square value={this.props.squares[i]}
+                   onClick={() => this.props.handleClick(i)}
+                   myTurn={this.props.myTurn}
+           />;
+  }
+
+  render() {
+    return (
+      <div>
+        <div className="board-row">
+          {this.renderSquare(0)}
+          {this.renderSquare(1)}
+          {this.renderSquare(2)}
+        </div>
+        <div className="board-row">
+          {this.renderSquare(3)}
+          {this.renderSquare(4)}
+          {this.renderSquare(5)}
+        </div>
+        <div className="board-row">
+          {this.renderSquare(6)}
+          {this.renderSquare(7)}
+          {this.renderSquare(8)}
+        </div>
+      </div>
+    );
+  }
+}
+
+class ChessSquare extends React.Component {
+  constructor(props) {
+    super(props)
+  }
+  
+  renderPiece(name) {
+    const m = {
+      'king':   <FontAwesomeIcon icon={solid('chess-king')} />,
+      'queen':  <FontAwesomeIcon icon={solid('chess-queen')} />,
+      'rook':   <FontAwesomeIcon icon={solid('chess-rook')} />,
+      'bishop': <FontAwesomeIcon icon={solid('chess-bishop')} />,
+      'knight': <FontAwesomeIcon icon={solid('chess-knight')} />,
+      'pawn':   <FontAwesomeIcon icon={solid('chess-pawn')} />,
+    }
+    return m[name]
+  }
+
+  render() {
+    return (
+      <button className="square">
+        {this.renderPiece(this.props.piece)}
+      </button>
+    );
+  }
+}
+
+class ChessRow extends React.Component {
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    return (
+      <div className="board-row"></div>
+    )
+  }
+}
+
+class ChessBoard extends React.Component {
   constructor(props) {
     super(props);
   }
@@ -195,15 +268,10 @@ class UI extends React.Component {
         <ConnectionPanel myID={this.state.myID}
                          connectToID={this.connectToID} />
         <div className="status">{status}</div>
-        <Board squares={this.state.squares}
-               handleClick={this.handleClick}
-               myTurn={myTurn} />
-        <FontAwesomeIcon icon={solid('chess-pawn')} />
-        <FontAwesomeIcon icon={solid('chess-king')} />
-        <FontAwesomeIcon icon={solid('chess-queen')} />
-        <FontAwesomeIcon icon={solid('chess-rook')} />
-        <FontAwesomeIcon icon={solid('chess-bishop')} />
-        <FontAwesomeIcon icon={solid('chess-knight')} />
+        <TicTacToeBoard squares={this.state.squares}
+                        handleClick={this.handleClick}
+                        myTurn={myTurn} />
+        <ChessSquare piece={""} />
       </div>
     );
   }

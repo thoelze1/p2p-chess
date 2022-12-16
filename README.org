@@ -1,8 +1,11 @@
 * Goals
-- Other frontends other than the JS ons
-- Accessible (moves can be made in algebraic notation)
-- Chess clock
-- Choose color
+** Other frontends other than React.js
+This is difficult because peer.js doesn't work with node.js. But if I
+have time I'll still look into it.
+** Accessible (moves can be made in algebraic notation)
+In progress!
+** Chess clock
+** Choose color
 
 * Next Steps
 - Design plan for error handling. If peers get disconnected, how is
@@ -13,6 +16,21 @@
   a computerized board? Can you pick pieces up off of the board and
   move them to the side, e.g.?
 - Dark/light mode
+- Parse castling
+- Parse promotion
+- Parse check/checkmate (+/#/++)
+- Parse "e.p."
+
+* We could do a "simple mode" and a "digital mode"
+where simple mode you can treat the set like a physical set, and
+digital mode where the set behaves like, e.g. chess.com. Does this
+make sense?
+
+My first thought is that I want the various components to be
+composable: chess clock, side pieces, chess board. You might want a
+clock in both physical and digital modes, but you'd only want side
+pieces in physical mode.  Plus, the behavior of the clocks would be
+different.
 
 * Stuff I've learned
 - Accessing the correct `this`: https://stackoverflow.com/questions/20279484/how-to-access-the-correct-this-inside-a-callback

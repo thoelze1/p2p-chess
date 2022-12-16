@@ -576,7 +576,20 @@ function validateMove(an,player,board) {
   } else {
     piece = an.substring(0,an.length-2)
   }
-  const re=/^0\-0$|^0\-0\-0$|^(?<piece>[KQRBN])?(?<fromFile>[a-h])?(?<fromRank>[1-8])?(?<capture>x)?(?<target>[a-h][1-8])(?<promotion>[QRBN])?(?<check>\+|\+\+|#)?(<ep>e\.p\.)?$/
+  const castleShort = '0\-0'
+  const castleLong = '0\-0\-0'
+  const p = '(?<piece>[KQRBN])?'
+  const id = '(?<fromFile>[a-h])?(?<fromRank>[1-8])?'
+  const capture = '(?<capture>x)?'
+  const target = '(?<target>[a-h][1-8])'
+  const promotion = '(?<promotion>[QRBN])?'
+  const check = '(?<check>\+|\+\+|#)?'
+  const ep = '(<ep>e\.p\.)?'
+  const reString =
+        '^' + castleShort + '$|' +
+        '^' + castleLong + '$|' +
+        '^' + p + id + capture + target + promotion + check + ep + '$'
+  const re = new RegExp(reString)
   
   const target = anToIndices(an.substring(an.length-2))
   console.log("target0: ",target)

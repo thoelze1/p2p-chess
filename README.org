@@ -1,5 +1,9 @@
 * To-do
-** Correct the pawn movement in algebraic notation
+** DONE Correct the pawn movement in algebraic notation
+** Implement castling check
+** Implement algebraic notation check as regexp
+** Implement moveToAN to save game moves
+** Implement offering/accepting a draw, and resigning
 ** Implement pawn promotion (how does user select promoted piece?)
 ** Finish implementing algebraic notation parser
 *** Castling
@@ -7,6 +11,15 @@
 *** Check/checkmate (+,#,++)
 *** En passant ("e.p.")
 ** Refactor chess board representation into new class
+*** A chess board needs the following state:
+- board grid to animate the pieces, determine moves, etc
+- whether black king's rook has moved (for castling)
+- whether black queen's rook had moved
+- whether white king's rook had moved
+- whether white queen's rook had moved
+- whether black king has moved
+- whether white king has moved
+- whether or not last move was a pawn jump, and which pawn if so
 ** Implement index.css as inline tailwind
 ** Design UI for rotating board
 Let's just leave it to two views: black's and white's

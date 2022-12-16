@@ -576,7 +576,8 @@ function validateMove(an,player,board) {
   } else {
     piece = an.substring(0,an.length-2)
   }
-
+  const re=/^0\-0$|^0\-0\-0$|^(?<piece>[KQRBN])?(?<fromFile>[a-h])?(?<fromRank>[1-8])?(?<capture>x)?(?<target>[a-h][1-8])(?<promotion>[QRBN])?(?<check>\+|\+\+|#)?(<ep>e\.p\.)?$/
+  
   const target = anToIndices(an.substring(an.length-2))
   console.log("target0: ",target)
   const isCapture = an.charAt(an.length-3) == 'x'

@@ -5,49 +5,6 @@ import { Peer } from "peerjs";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { solid, regular, brands, icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 
-function Square(props) {
-  return (
-    <button className="border w-12 h-12" onClick={props.onClick} disabled={!props.myTurn}>
-      {props.value}
-    </button>
-  );
-}
-
-class TicTacToeBoard extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  renderSquare(i) {
-    return <Square value={this.props.squares[i]}
-                   onClick={() => this.props.handleClick(i)}
-                   myTurn={this.props.myTurn}
-           />;
-  }
-
-  render() {
-    return (
-      <div className="flex flex-col">
-        <div className="flex-row h-12">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-        </div>
-        <div className="flex-row h-12">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="flex-row h-12">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
-      </div>
-    );
-  }
-}
-
 class ChessSquare extends React.Component {
   constructor(props) {
     super(props)
@@ -76,6 +33,9 @@ class ChessSquare extends React.Component {
   render() {
     let classes = (this.props.i % 2) == (this.props.j % 2) ? "chessSquare bg-gray-300" : "chessSquare bg-gray-400";
     classes = classes.concat(' ',this.colorToStyle(this.props.piece.color));
+    if(this.props.piece.color) {
+      classes = classes.concat(' ',this.colorToStyle(this.props.piece.color));
+    }
 
     return (
       <button className={classes} onClick={() => this.props.onClick(this.props.i,this.props.j)}>
@@ -95,7 +55,7 @@ class ChessBoard extends React.Component {
     this.props.board.forEach((row,i) => {
       const squares = []
       row.forEach((square,j) => {
-        squares.unshift(<ChessSquare key={j}
+        squares.unshift(<ChessSquare key={-(j+1)}
                                      i={i}
                                      j={j}
                                      piece={square}
@@ -173,10 +133,7 @@ class UI extends React.Component {
       peer: null,
       myID: null,
       friendID: null,
-      isX: null,
       conn: null,
-      squares: Array(9).fill(null),
-      xIsNext: true,
       show: false,
       host: false,
       board: chessBoard,
@@ -223,8 +180,8 @@ class UI extends React.Component {
   }
 
   myTurn() {
-    return (this.state.isX == this.state.xIsNext) &&
-      !calculateWinner(this.state.squares);
+    return true /*(this.state.isX == this.state.xIsNext) &&
+      !calculateWinner(this.state.squares);*/
   }
 
   handleData(i) {
@@ -248,7 +205,7 @@ class UI extends React.Component {
     this.setState({
       board: newBoard
     })
-*/
+    */
     //console.log(getAllPlayerPieces('white',this.state.board))
   }
 
@@ -296,7 +253,7 @@ class UI extends React.Component {
   }
   
   render() {
-    const winner = calculateWinner(this.state.squares);
+    const winner = false //calculateWinner(this.state.squares);
     let status;
     if (!this.state.show) {
       status = null
@@ -310,9 +267,9 @@ class UI extends React.Component {
       status = this.myTurn() ? 'Your move' : 'Waiting for opponent to play...';
     }
     const myTurn = this.myTurn()
-    const board = this.state.show ? <TicTacToeBoard squares={this.state.squares}
+    /*const board = this.state.show ? <TicTacToeBoard squares={this.state.squares}
                                                     handleClick={this.handleClick}
-                                                    myTurn={myTurn} /> : null;
+                                                    myTurn={myTurn} /> : null;*/
     const id = this.state.host ? "Board ID: ".concat(this.state.myID) : null 
     return (
       <div className="w-96 mx-auto text-center">
@@ -467,23 +424,3 @@ function validateMove(an,player,board) {
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<UI />);
-
-function calculateWinner(squares) {
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
-    }
-  }
-  return null;
-}

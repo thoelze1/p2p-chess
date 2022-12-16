@@ -8,6 +8,11 @@ import { solid, regular, brands, icon } from '@fortawesome/fontawesome-svg-core/
 class ChessSquare extends React.Component {
   constructor(props) {
     super(props)
+    this.onClick = this.onClick.bind(this)
+  }
+
+  onClick(e) {
+    this.props.onClick(this.props.i,this.props.j)
   }
   
   renderPiece(name) {
@@ -22,23 +27,29 @@ class ChessSquare extends React.Component {
     return m[name]
   }
 
-  colorToStyle(color) {
-    const m = {
-      'white': 'text-white',
-      'black': 'text-slate-800',
-    }
-    return m[color]
+  allStyle() {
+    return "chessSquare"
+  }
+  
+  pieceStyle() {
+    const white = this.props.piece.color == 'white'
+    return white ? 'text-white' : 'text-slate-800'
   }
 
+  squareStyle() {
+    let dark = (this.props.i % 2) == (this.props.j % 2)
+    const sat = dark ? '400' : '300'
+    const color = this.props.mark ? 'red' : 'gray'
+    return 'bg-' + color + '-' + sat
+  }
+  
   render() {
-    let classes = (this.props.i % 2) == (this.props.j % 2) ? "chessSquare bg-gray-300" : "chessSquare bg-gray-400";
-    classes = classes.concat(' ',this.colorToStyle(this.props.piece.color));
-    if(this.props.piece.color) {
-      classes = classes.concat(' ',this.colorToStyle(this.props.piece.color));
-    }
+    const classes = [this.allStyle(),
+                     this.pieceStyle(),
+                     this.squareStyle()].join(' ')
 
     return (
-      <button className={classes} onClick={() => this.props.onClick(this.props.i,this.props.j)}>
+      <button className={classes} onClick={this.onClick}>
         {this.renderPiece(this.props.piece.name)}
       </button>
     );
@@ -51,6 +62,12 @@ class ChessBoard extends React.Component {
   }
 
   render() {
+    const isMarked = (i,j) => {
+      const indexOf = this.props.marks.findIndex((s) => {
+        return s[0] == i && s[1] == j
+      })
+      return indexOf > -1
+    }
     const rows = [];
     this.props.board.forEach((row,i) => {
       const squares = []
@@ -58,6 +75,7 @@ class ChessBoard extends React.Component {
         squares.unshift(<ChessSquare key={-(j+1)}
                                      i={i}
                                      j={j}
+                                     mark={isMarked(i,j)}
                                      piece={square}
                                      onClick={this.props.onClick} /> );
       });
@@ -270,10 +288,14 @@ class UI extends React.Component {
     /*const board = this.state.show ? <TicTacToeBoard squares={this.state.squares}
                                                     handleClick={this.handleClick}
                                                     myTurn={myTurn} /> : null;*/
-    const id = this.state.host ? "Board ID: ".concat(this.state.myID) : null 
+    const id = this.state.host ? "Board ID: ".concat(this.state.myID) : null
+    const marks = this.state.src ? [this.state.src] : []
+    
     return (
       <div className="w-96 mx-auto text-center">
-        <ChessBoard board={this.state.board} onClick={this.handleClick} />
+        <ChessBoard board={this.state.board}
+                    onClick={this.handleClick}
+                    marks={marks} />
         <input className="border w-96 p-2 text-center"
                value={this.state.fieldValue}
                onChange={this.handleChange}
@@ -581,13 +603,13 @@ function validateMove(an,player,board) {
   const p = '(?<piece>[KQRBN])?'
   const id = '(?<fromFile>[a-h])?(?<fromRank>[1-8])?'
   const capture = '(?<capture>x)?'
-  const target = '(?<target>[a-h][1-8])'
+  const t = '(?<target>[a-h][1-8])'
   const promotion = '(?<promotion>[QRBN])?'
   const check = '(?<check>\+|\+\+|#)?'
   const ep = '(<ep>e\.p\.)?'
   const reString =
-        '^' + castleShort + '$|' +
-        '^' + castleLong + '$|' +
+        '^' + castleShort + '$' + '|' +
+        '^' + castleLong + '$' + '|' +
         '^' + p + id + capture + target + promotion + check + ep + '$'
   const re = new RegExp(reString)
   

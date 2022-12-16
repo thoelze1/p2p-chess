@@ -1,3 +1,23 @@
+* To-do
+** Correct the pawn movement in algebraic notation
+** Implement pawn promotion (how does user select promoted piece?)
+** Finish implementing algebraic notation parser
+*** Castling
+*** Pawn promotion
+*** Check/checkmate (+,#,++)
+*** En passant ("e.p.")
+** Refactor chess board representation into new class
+** Implement index.css as inline tailwind
+** Design UI for rotating board
+Let's just leave it to two views: black's and white's
+** Implement dark/light mode
+** Implement clock
+** Implement side pieces
+** Implement color palette for chess set
+** Implement drag-and-drop for chess pieces
+** Comment and simplify validation library
+*** Use consistent coordinate representation
+
 * Goals
 ** Other frontends other than React.js
 This is difficult because peer.js doesn't work with node.js. But if I

@@ -195,18 +195,18 @@ class UI extends React.Component {
   }
 
   doMove(an) {
+    /*
     const i1 = parseInt(an.charAt(0),10)
     const j1 = parseInt(an.charAt(1),10)
     const i2 = parseInt(an.charAt(2),10)
     const j2 = parseInt(an.charAt(3),10)
     const newBoard = execMove([i1,j1],[i2,j2],this.state.board)
     console.log(newBoard)
-    /*
     this.setState({
       board: newBoard
     })
     */
-    //console.log(getAllPlayerPieces('white',this.state.board))
+    console.log(validateMove(an,'white',this.state.board))
   }
 
   receiveConnection(c) {
@@ -283,6 +283,11 @@ class UI extends React.Component {
   }
 }
 
+const ranks = ['1','2','3','4','5','6','7','8']
+const rankToIndex = (rank) => { return ranks.indexOf(rank) }
+const files = ['a','b','c','d','e','f','g','h']
+const fileToIndex = (file) => { return files.indexOf(file) }
+
 const backRow = ['R','N','B','Q','K','B','N','R']
 const pawns = Array(8).fill('P')
 const empty = Array(8).fill({})
@@ -298,40 +303,134 @@ const chessBoard = [
 ]
 
 // returns indices of all pieces that can move to given loc.
-function onePieceCanMove(piece,player,target,board) {
-
+// input "piece" is everything before x and target in AN
+function getAllControllers(name,player,target,board) {
+  const t = getPlayerPieces(player,name,board)
+  console.log(name,player,target,t)
+  return t.flatMap((loc) => {
+    return isAttacking(loc,target,board) ? [loc] : []
+  })
 }
 
+function getControllers(piece,player,target,board) {
+  let name;
+  let rest;
+  if(backRow.includes(piece.charAt(0))) {
+    name = piece.charAt(0)
+    rest = piece.substring(1)
+  } else {
+    name = 'P'
+    rest = piece
+  }
+  const all = getAllControllers(name,player,target,board)
+  console.log(all)
+  const match = (loc) => {
+    if(rest.length == 2) {
+      return loc[0] == rankToIndex(rest.charAt(1)) &&
+        loc[1] == fileToIndex(rest.charAt(0));
+    } else if(rest.length == 1) {
+          console.log("rest: ",rest)
+
+      if(files.includes(rest.charAt(0))) {
+        return loc[1] == fileToIndex(rest.charAt(0))
+      } else {
+        return loc[0] == rankToIndex(rest.charAt(0))
+      }
+    } else {
+      return true
+    }
+  }
+  return all.filter(match)
+}
+                          
 function pieceAtTarget(player,target,board) {
-  const indices = anToIndices(target)
-  console.log(indices)
-  const i = indices[0]
-  const j = indices[1]
+  const i = target[0]
+  const j = target[1]
   return board[i][j] && board[i][j].color == player
 }
 
-/*
-function getAttackRay(src,board) {
-  const attacker = board[src[0]][src[1]]
-  const m = {
-    'P': () => if(attacker.color == 'white') {
-      return [ [src[0]-1,src[1]+1] , [src[0]
+const bishopVectors = [ [-1,-1] , [-1,1] , [1,-1] , [1,1] ]
+const rookVectors = [ [-1,0] , [0,-1] , [0,1] , [1,0] ]
+const kingVectors = rookVectors.concat(bishopVectors)
+const queenVectors = kingVectors.slice()
+const pieceToVectors = {
+  'R': rookVectors,
+  'Q': queenVectors,
+  'B': bishopVectors,
 }
 
-function isAttacking(src,target,board) {
-  const attacker = board[src[0]][src[1]].piece
-  const m = {
-    'P': (s,d) => {}
-    'N': (s,d) => { 
-    'B'
-    'R'
-    'Q'
-    'K'
-  if(attacker == 'P') {
+function onBoard(square) {
+  const i = square[0]
+  const j = square[1]
+  return 0 <= i && i <= 7 && 0 <= j && j <= 7
+}
+
+// doesn't yet take en passant into account. We need to add more pawn
+// logic: it moves forward under certain circumstances, diagnoal in
+// others. This function uses cartesian representation
+// (x,y). Everywhere else uses (i,j)
+function getMoves(src,board) {
+  console.log("getMoves src: ",src)
+  const x = src[1]
+  const y = src[0]
+  const attacker = board[y][x]
+  let coords = []
+  if(attacker.name == 'P') {
+    if(attacker.color == 'white') {
+      coords = [ [x-1,y+1] , [x+1,y+1] ]
+    } else {
+      coords = [ [x-1,y-1] , [x+1,y-1] ]
+    }
+  } else if(attacker.name == 'N') {
+    coords = [ [x+1,y+2] , [x+2,y+1],
+               [x+1,y-2] , [x+2,y-1],
+               [x-1,y+2] , [x-2,y+1],
+               [x-1,y-2] , [x-2,y-1] ]
+  } else if(attacker.name == 'K') {
+    coords = kingVectors.flatMap((v) => {
+      let ray = [x,y]
+      ray = [ray[0]+v[0],ray[1]+v[1]]
+      if(onBoard([ray[1],ray[0]])) {
+        if(board[ray[1]][ray[0]]) {
+          return board[ray[1]][ray[0]].color != attacker.color ? [ray] : []
+        } 
+        return [ray]
+      }
+      return []
+    })
+  } else {
+    console.log(x,y)
+    console.log(attacker)
+    console.log(pieceToVectors[attacker.name])
+    coords = pieceToVectors[attacker.name].flatMap((v) => {
+      let ray = [x,y]
+      ray = [ray[0]+v[0],ray[1]+v[1]]
+      let moves = []
+      while(onBoard([ray[1],ray[0]])) {
+        if(board[ray[1]][ray[0]].color) {
+          if(board[ray[1]][ray[0]].color == attacker.color) {
+            break
+          } else {
+            moves.push(ray)
+            break
+          }
+        }
+        moves.push(ray)
+        ray = [ray[0]+v[0],ray[1]+v[1]]
+      }
+      console.log("vector: ",v,"moves: ",moves)
+      return moves
+    })
   }
+  console.log("coords: ",coords)
+  return coords.map((v) => { return [v[1],v[0]] }).filter(onBoard)
 }
-*/
 
+// doesn't take en passant into account
+function isAttacking(src,target,board) {
+  const ray = getMoves(src,board)
+  return ray.findIndex((l) => { return l[0] == target[0] && l[1] == target[1] }) > -1
+}
 
 function getAllPieces(board) {
   const match = (square) => {
@@ -349,7 +448,7 @@ function getAllPlayerPieces(player,board) {
 
 function getPlayerPieces(player,piece,board) {
   const match = (square) => {
-    return square.color = player && square.piece == piece
+    return square.color == player && square.name == piece
   }
   return getMatchingPieces(match,board)
 }
@@ -365,21 +464,21 @@ function getMatchingPieces(match,board) {
 }
 
 function inCheck(player,board) {
-  /*
   const kingLoc = getPlayerPieces(player,'K',board)[0]
   const enemyPieces = getAllPlayerPieces(enemy(player),board)
-  for(loc in enemyPieces) {
-    if isAttacking(loc,kingLoc,board) {
+  console.log("enemyPieces: ",enemyPieces)
+  enemyPieces.forEach((loc) => {
+    console.log("inCheck loc: ",loc)
+    if(isAttacking(loc,kingLoc,board)) {
       return true
     }
-  }
-  return false// check if any pieces are attacking king
-  */
+  })
+  return false
 }
 
 function execMove(src,dst,board) {
   let newBoard = board.slice();
-  console.log(src,dst)
+  console.log("execMove: ",src,dst)
   newBoard[dst[0]][dst[1]] = {
     name: board[src[0]][src[1]].name,
     color: board[src[0]][src[1]].color
@@ -392,7 +491,7 @@ function anToIndices(an) {
   const file = an.charAt(0)
   const rank = an.charAt(1)
   const i = rank-1
-  const j = file.charCodeAt(0)-97
+  const j = file.charCodeAt(0) - 'a'.charCodeAt(0)
   return [i,j]
 }
 
@@ -404,6 +503,10 @@ function enemy(player) {
   return m[player]
 }
 
+// We currently have 3 coordinate representations of the board:
+// indices, cartesian coordinates, and algebraic corrdinates. This is
+// bad. I try to only use algebraic here, and only use cartesian in
+// getMoves.
 function validateMove(an,player,board) {
   let piece;
   if (an.indexOf('x') > 0) {
@@ -411,15 +514,21 @@ function validateMove(an,player,board) {
   } else {
     piece = an.substring(0,an.length-2)
   }
-  const target = an.substring(an.length-2)
+
+  const target = anToIndices(an.substring(an.length-2))
+  console.log("target0: ",target)
   const isCapture = an.charAt(an.length-3) == 'x'
-  const pieces = onePieceCanMove(piece,player,target,board)
+  const pieces = getControllers(piece,player,target,board)
   const matchesCapture = pieceAtTarget(enemy(player),target,board) == isCapture
-  const avoidsCheck = inCheck(player,execMove(pieces[0],anToIndices(target),board))
   // it's valid if there's exactly one piece that can move to the
   // destination and, if a capture is listed, if there's an enemy
   // piece at that location, and if you don't enter check
-  return pieces.length ==  1 && matchesCapture && avoidsCheck
+  console.log("pieces: ",pieces)
+  console.log("target1: ",target)
+  if(pieces.length == 1 && matchesCapture) {
+    return !inCheck(player,execMove(pieces[0],target,board))
+  }
+  return false
 }
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

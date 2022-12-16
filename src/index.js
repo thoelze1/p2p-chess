@@ -12,12 +12,12 @@ class ChessSquare extends React.Component {
   
   renderPiece(name) {
     const m = {
-      'K':   <FontAwesomeIcon icon={solid('chess-king')} />,
-      'Q':  <FontAwesomeIcon icon={solid('chess-queen')} />,
-      'R':   <FontAwesomeIcon icon={solid('chess-rook')} />,
+      'K': <FontAwesomeIcon icon={solid('chess-king')} />,
+      'Q': <FontAwesomeIcon icon={solid('chess-queen')} />,
+      'R': <FontAwesomeIcon icon={solid('chess-rook')} />,
       'B': <FontAwesomeIcon icon={solid('chess-bishop')} />,
       'N': <FontAwesomeIcon icon={solid('chess-knight')} />,
-      'P':   <FontAwesomeIcon icon={solid('chess-pawn')} />,
+      'P': <FontAwesomeIcon icon={solid('chess-pawn')} />,
     }
     return m[name]
   }

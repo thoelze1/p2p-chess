@@ -365,68 +365,130 @@ function onBoard(square) {
   return 0 <= i && i <= 7 && 0 <= j && j <= 7
 }
 
-// doesn't yet take en passant into account. We need to add more pawn
-// logic: it moves forward under certain circumstances, diagnoal in
-// others. This function uses cartesian representation
-// (x,y). Everywhere else uses (i,j)
-function getMoves(src,board) {
-  console.log("getMoves src: ",src)
+function getPawnMoves(src,board,epFile) {
+  const direction = 'white' ? 1 : -1
   const x = src[1]
   const y = src[0]
   const attacker = board[y][x]
   let coords = []
-  if(attacker.name == 'P') {
-    if(attacker.color == 'white') {
-      coords = [ [x-1,y+1] , [x+1,y+1] ]
-    } else {
-      coords = [ [x-1,y-1] , [x+1,y-1] ]
-    }
-  } else if(attacker.name == 'N') {
-    coords = [ [x+1,y+2] , [x+2,y+1],
-               [x+1,y-2] , [x+2,y-1],
-               [x-1,y+2] , [x-2,y+1],
-               [x-1,y-2] , [x-2,y-1] ]
-  } else if(attacker.name == 'K') {
-    coords = kingVectors.flatMap((v) => {
-      let ray = [x,y]
-      ray = [ray[0]+v[0],ray[1]+v[1]]
-      if(onBoard([ray[1],ray[0]])) {
-        if(board[ray[1]][ray[0]]) {
-          return board[ray[1]][ray[0]].color != attacker.color ? [ray] : []
-        } 
-        return [ray]
-      }
-      return []
-    })
-  } else {
-    console.log(x,y)
-    console.log(attacker)
-    console.log(pieceToVectors[attacker.name])
-    coords = pieceToVectors[attacker.name].flatMap((v) => {
-      let ray = [x,y]
-      ray = [ray[0]+v[0],ray[1]+v[1]]
-      let moves = []
-      while(onBoard([ray[1],ray[0]])) {
-        if(board[ray[1]][ray[0]].color) {
-          if(board[ray[1]][ray[0]].color == attacker.color) {
-            break
-          } else {
-            moves.push(ray)
-            break
-          }
-        }
-        moves.push(ray)
-        ray = [ray[0]+v[0],ray[1]+v[1]]
-      }
-      console.log("vector: ",v,"moves: ",moves)
-      return moves
-    })
+  if(!board[y+direction][x].name) {
+    coords.push([x,y+direction])
   }
-  console.log("coords: ",coords)
+  if(pieceAtTarget(enemy(attacker.color),[y+direction,x-1],board)) {
+    coords.push([x-1,y+direction])
+  }
+  if(pieceAtTarget(enemy(attacker.color),[y+direction,x+1],board)) {
+    coords.push([x+1,y+direction])
+  }
+  if(attacker.color == 'white' && y == 1 &&
+     !pieceAtTarget('black',[2,x],board) &&
+     !pieceAtTarget('black',[3,x],board)) {
+    coords.push([x,3])
+  }
+  if(attacker.color == 'black' && y == 6 &&
+     !pieceAtTarget('white',[5,x],board) &&
+     !pieceAtTarget('white',[4,x],board)) {
+    coords.push([x,4])
+  }
+  if(attacker.color == 'white' && epFile &&
+     (x == epFile - 1 || x == epFile + 1) && y == 4) {
+    coords.push([epFile,5])
+  }
+  if(attacker.color == 'black' && epFile &&
+     (x == epFile - 1 || x == epFile + 1) && y == 3) {
+    coords.push([epFile,2])
+  }
+  return coords
+}
+
+function getKnightMoves(src,board) {
+  const x = src[1]
+  const y = src[0]
+  return [ [x+1,y+2] , [x+2,y+1],
+           [x+1,y-2] , [x+2,y-1],
+           [x-1,y+2] , [x-2,y+1],
+           [x-1,y-2] , [x-2,y-1] ]
+}
+
+function getKingMoves(src,board) {
+  const x = src[1]
+  const y = src[0]
+  const attacker = board[y][x]
+  return kingVectors.flatMap((v) => {
+    let ray = [x,y]
+    ray = [ray[0]+v[0],ray[1]+v[1]]
+    if(onBoard([ray[1],ray[0]])) {
+      if(board[ray[1]][ray[0]]) {
+        return board[ray[1]][ray[0]].color != attacker.color ? [ray] : []
+      } 
+      return [ray]
+    }
+    return []
+  })
+}
+
+function getVectorMoves(vectors,src,board) {
+  const x = src[1]
+  const y = src[0]
+  const attacker = board[y][x]
+  return vectors.flatMap((v) => {
+    let ray = [x,y]
+    ray = [ray[0]+v[0],ray[1]+v[1]]
+    let moves = []
+    while(onBoard([ray[1],ray[0]])) {
+      if(board[ray[1]][ray[0]].color) {
+        if(board[ray[1]][ray[0]].color == attacker.color) {
+          break
+        } else {
+          moves.push(ray)
+          break
+        }
+      }
+      moves.push(ray)
+      ray = [ray[0]+v[0],ray[1]+v[1]]
+    }
+    console.log("vector: ",v,"moves: ",moves)
+    return moves
+  })
+}
+
+function getQueenMoves(src,board) {
+  return getVectorMoves(queenVectors,src,board)
+}
+
+function getBishopMoves(src,board) {
+  return getVectorMoves(bishopVectors,src,board)
+}
+
+function getRookMoves(src,board) {
+  return getVectorMoves(rookVectors,src,board)
+}
+
+// All helper functions use cartesian representation (x,y). Everywhere else
+// uses (i,j). Still needs to:
+// 
+// return castling, which requires passing in information about the
+// king and both rooks
+//
+// return pawn promotion moves
+function getMoves(src,board,epFile) {
+  const piece = board[src[0]][src[1]].name
+  let coords
+  const m = {
+    'N': getKnightMoves,
+    'B': getBishopMoves,
+    'Q': getQueenMoves,
+    'R': getRookMoves,
+    'K': getKingMoves,
+  }
+  if(piece == 'P') {
+    coords = getPawnMoves(src,board,epFile)
+  } else {
+    coords = m[piece](src,board)
+  }
   return coords.map((v) => { return [v[1],v[0]] }).filter(onBoard)
 }
 
-// doesn't take en passant into account
 function isAttacking(src,target,board) {
   const ray = getMoves(src,board)
   return ray.findIndex((l) => { return l[0] == target[0] && l[1] == target[1] }) > -1

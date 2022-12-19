@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/p2p-chess/static/css/main.33ec7352.css",
+    "main.js": "/p2p-chess/static/js/main.c5d3eb1e.js",
+    "index.html": "/p2p-chess/index.html",
+    "main.33ec7352.css.map": "/p2p-chess/static/css/main.33ec7352.css.map",
+    "main.c5d3eb1e.js.map": "/p2p-chess/static/js/main.c5d3eb1e.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.33ec7352.css",
+    "static/js/main.c5d3eb1e.js"
+  ]
+}
